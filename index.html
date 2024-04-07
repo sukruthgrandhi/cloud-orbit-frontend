@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <script src="env.js"></script> <!-- Include env.js before your main script -->
+</head>
+<body>
+    <h1>Welcome to the Items Page</h1>
+    
+    <button onclick="greet()">Say Hello</button>
+    <button onclick="readAllItems()">Read All Items</button>
+    <br/>
+    <br/>
+    <br/>
+
+    <div id="insertItemForm">
+        <input type="text" id="nameInput" placeholder="Name">
+        <input type="text" id="descriptionInput" placeholder="Description">
+        <button onclick="addItem()">Submit</button>
+    </div>
+
+    <script>
+        function greet() {
+            fetch(`${__env.backendBaseURL}`)
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Response data:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function readAllItems() {
+            fetch(`${__env.backendBaseURL}items/all`)
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Response data:', data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function addItem() {
+            const name = document.getElementById('nameInput').value;
+            const description = document.getElementById('descriptionInput').value;
+
+            const data = {
+                name: name,
+                description: description
+            };
+
+            fetch(`${__env.backendBaseURL}items/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
