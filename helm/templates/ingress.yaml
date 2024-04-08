@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cloud-orbit-frontend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: /frontend/
+  labels:
+    app: cloud-orbit-frontend-ingress
+  namespace: "{{ .Values.namespace }}"
+spec:
+  rules:
+  - host: "{{ .Values.host }}"
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: cloud-orbit-frontend-service
+              port:
+                number: 80
