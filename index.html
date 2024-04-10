@@ -1,21 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    <title>Cloud Orbit Item Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        #responseData {
+            padding: 8px;
+            margin-left: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+            width: 200px; /* Set the width as per your requirement */
+        }
+
+        #sayHelloButton {
+            margin-right: 20px;
+        }
+
+        #addItemForm {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #itemName, #itemDescription {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        #addItemBtn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #itemList {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #itemList th, #itemList td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+ 
+        .deleteBtn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            vertical-align: middle; /* Align button vertically in center */
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to the Items Page</h1>
-    
-    <button onclick="greet()">Say Hello</button>
-    <button onclick="readAllItems()">Read All Items</button>
-    <br/>
-    <br/>
-    <br/>
 
-    <div id="insertItemForm">
-        <input type="text" id="nameInput" placeholder="Name">
-        <input type="text" id="descriptionInput" placeholder="Description">
-        <button onclick="addItem()">Submit</button>
+    <div class="container">
+        <!-- Button to trigger greet() function -->
+        <button id="sayHelloButton" onclick="greet()">Say Hello</button>
+        <!-- Display area for response data -->
+        <input type="text" id="responseData">
+    </div>
+
+    <div class="container">
+        <h2>Item Tracker</h2>
+        <form id="addItemForm">
+            <input type="text" id="itemName" placeholder="Enter item...">
+            <input type="text" id="itemDescription" placeholder="Enter Description...">
+            <button type="button" id="addItemBtn" >Add Item</button>
+        </form>
+        <table id="itemList">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
     <script>
@@ -24,14 +120,25 @@
             window.__env.backendBaseURL = '/'; // Modify this with your actual base URL
         }(this));
 
+        document.addEventListener('DOMContentLoaded', function() {
+            readAllItems(); // Call the function when the DOM content is loaded
+        });
+
+        const addItemBtn = document.getElementById('addItemBtn');
+        addItemBtn.addEventListener('click', addItem);
+
         function greet() {
+            console.log("calling greet");
             fetch(`${__env.backendBaseURL}backend/`)
                 .then(response => response.text())
                 .then(data => {
-                    console.log('Response data:', data);
+                    // Display response data in the HTML page
+                    console.log(data);
+                    document.getElementById('responseData').value = data;
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    // Display error message in the HTML page
+                    document.getElementById('responseData').innerText = 'Error: ' + error;
                 });
         }
 
@@ -40,15 +147,72 @@
                 .then(response => response.text())
                 .then(data => {
                     console.log('Response data:', data);
+                    const parsedData = JSON.parse(data); // Parse the JSON string
+                    console.log(parsedData);
+                    renderItemsTable(parsedData); // Call the function to render the HTML table
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         }
 
+        function renderItemsTable(data) {
+            const tbody = document.querySelector('#itemList tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(rowData => {
+                const tr = document.createElement('tr');
+
+                // Add cells for ID, Name, and Description
+                rowData.forEach((cellData, index) => {
+                    const td = document.createElement('td');
+                    td.textContent = cellData;
+                    tr.appendChild(td);
+                    // Add Delete button after the description column
+                    if (index === 2) { // Assuming Description column is at index 2
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.textContent = 'Delete';
+                        deleteBtn.className = 'deleteBtn'; // Add a class for styling purposes or event binding
+                        deleteBtn.addEventListener('click', function() {
+                            // Define the logic to delete the item here
+                            // You can call a deleteItem function passing the item ID or any other necessary data
+                            // For example: deleteItem(rowData[0]);
+                            console.log('Delete button clicked for item:', rowData);
+                            deleteItem(rowData[0]);
+                        });
+                        const td = document.createElement('td');
+                        td.appendChild(deleteBtn);
+                        tr.appendChild(td);
+                    }
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteItem(index) {
+            console.log(index)
+            fetch(`${__env.backendBaseURL}backend/items/${index}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                readAllItems();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
         function addItem() {
-            const name = document.getElementById('nameInput').value;
-            const description = document.getElementById('descriptionInput').value;
+            const name = document.getElementById('itemName').value;
+            const description = document.getElementById('itemDescription').value;
 
             const data = {
                 name: name,
@@ -70,6 +234,7 @@
             })
             .then(data => {
                 console.log('Success:', data);
+                readAllItems();
             })
             .catch(error => {
                 console.error('Error:', error);

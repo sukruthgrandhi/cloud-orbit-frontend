@@ -7,7 +7,6 @@ spec:
   selector:
     app: cloud-orbit-frontend
   type: ClusterIP
-  # clusterIP: None
   ports:
     - name: cloud-orbit-frontend
       port: 80

@@ -15,6 +15,7 @@ spec:
       labels:
         app: cloud-orbit-frontend
     spec:
+      replicas: {{ .Values.replicaCount }}
       containers:
       - name: cloud-orbit-frontend-image
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

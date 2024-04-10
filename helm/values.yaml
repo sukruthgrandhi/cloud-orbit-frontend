@@ -2,12 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2
+replicaCount: 3
 namespace: cloud-orbit-frontend
-host: cloudorbit.eastus.cloudapp.azure.com
+host: cloud-orbit.eastus.cloudapp.azure.com
+# host: mtonib.com
 
 image:
   repository: sukruthgrandhi/cloud-orbit-frontend-image
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "1.1.15"
